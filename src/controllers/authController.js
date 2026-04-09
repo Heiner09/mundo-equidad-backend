@@ -5,9 +5,10 @@ const { generateToken } = require('../utils/jwt');
 
 const authController = {
   register: [
+    body('name').trim().notEmpty().withMessage('Nombre es requerido'),
     body('username').trim().notEmpty().withMessage('Username es requerido'),
     body('email').isEmail().withMessage('Email inválido'),
-    body('password').isLength({ min: 6 }).withMessage('Contraseña mínimo 6 caracteres'),
+    body('password').isLength({ min: 8 }).withMessage('Contraseña mínimo 8 caracteres'),
     body('role').isIn(['persona', 'empresa']).withMessage('Role debe ser persona o empresa'),
     async (req, res, next) => {
       const errors = validationResult(req);
@@ -16,7 +17,7 @@ const authController = {
       }
 
       try {
-        const { username, email, password, role } = req.body;
+        const { name, username, email, password, role } = req.body;
 
         let user = await User.findOne({ $or: [{ email }, { username }] });
         if (user) {
@@ -26,6 +27,7 @@ const authController = {
         const hashedPassword = await bcryptjs.hash(password, 10);
 
         user = new User({
+          name,
           username,
           email,
           password: hashedPassword,
@@ -41,6 +43,7 @@ const authController = {
           token,
           user: {
             id: user._id,
+            name: user.name,
             username: user.username,
             email: user.email,
             role: user.role,
@@ -81,6 +84,7 @@ const authController = {
           token,
           user: {
             id: user._id,
+            name: user.name,
             username: user.username,
             email: user.email,
             role: user.role,

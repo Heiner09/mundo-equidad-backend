@@ -19,10 +19,10 @@ const userController = {
         return res.status(403).json({ message: 'No autorizado para actualizar este usuario' });
       }
 
-      const { username, email } = req.body;
+      const { name, username, email } = req.body;
       const user = await User.findByIdAndUpdate(
         req.params.id,
-        { username, email },
+        { name, username, email },
         { new: true, runValidators: true }
       ).select('-password');
 
